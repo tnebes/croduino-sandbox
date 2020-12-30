@@ -15,7 +15,7 @@ const int echoPin = 3;
 const int pingLEDPin = 4;
 const float delayTime = 0.1;
 long max_distance;
-int counter = 0, old_counter = 0;
+int counter = 0;
 
 void setup() {
     // setting up pins.
@@ -40,7 +40,6 @@ int adjust() {
 }
 
 long determineMaxDistance() {
-    long time = 0;
     long sum = 0;
     int numberOfMeasurements = 10;
 
@@ -70,16 +69,12 @@ void onePing() {
 
 void loop() {
     if (detect() < max_distance * 0.9) {
-        counter++;
+        Serial.print(counter++);
+		Serial.print("\n");
         digitalWrite(pingLEDPin, HIGH);
         while (detect() < max_distance * 0.9) {
             delay(50);
         }
         digitalWrite(pingLEDPin, LOW);
-    }
-    if (counter != old_counter) {
-        old_counter++;
-        Serial.print(counter);
-        Serial.print("\n");
     }
 }
