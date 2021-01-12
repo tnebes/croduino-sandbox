@@ -10,18 +10,18 @@
  */
 
 // digital pins
-const int triggerPin = 2;
-const int echoPin = 3;
-const int pingLEDPin = 4;
-const float delayTime = 0.1;
+#define triggerPin = 2;
+#define echoPin = 3;
+#define pingLEDPin = 4;
+#define delayTime = 0.1;
 long max_distance;
 int counter = 0;
 
 void setup() {
     // setting up pins.
-    pinMode(triggerPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    pinMode(pingLEDPin, OUTPUT);
+    pinMode(TRIGGER_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+    pinMode(PING_LED_PIN, OUTPUT);
 
     // establishing serial connection to main
     Serial.begin(9600);
@@ -32,9 +32,9 @@ void setup() {
 int adjust() {
     int startupDelay = 3000;
     //indicator light on.
-    digitalWrite(pingLEDPin, HIGH);
+    digitalWrite(PING_LED_PIN, HIGH);
     delay(startupDelay);
-    digitalWrite(pingLEDPin, LOW);
+    digitalWrite(PING_LED_PIN, LOW);
     
     max_distance = determineMaxDistance();
 }
@@ -44,10 +44,10 @@ long determineMaxDistance() {
     int numberOfMeasurements = 10;
 
     for (int i = 0; i < numberOfMeasurements; i++) {
-        digitalWrite(pingLEDPin, HIGH);
+        digitalWrite(PING_LED_PIN, HIGH);
         sum += detect();
         delay(100);
-        digitalWrite(pingLEDPin, LOW);
+        digitalWrite(PING_LED_PIN, LOW);
         delay(100);
     }
     return sum / numberOfMeasurements;
@@ -55,26 +55,26 @@ long determineMaxDistance() {
 
 long detect() {
     onePing();
-    return pulseIn(echoPin, HIGH);
+    return pulseIn(ECHO_PIN, HIGH);
 }
 
 void onePing() {
     // send a pulse
-    digitalWrite(triggerPin, HIGH);
+    digitalWrite(TRIGGER_PIN, HIGH);
     // wait for ping to be sent
-    delay(delayTime);
+    delay(DELAY_TIME);
     // one ping finished
-    digitalWrite(triggerPin, LOW);
+    digitalWrite(TRIGGER_PIN, LOW);
 }
 
 void loop() {
     if (detect() < max_distance * 0.9) {
         Serial.print(counter++);
 		Serial.print("\n");
-        digitalWrite(pingLEDPin, HIGH);
+        digitalWrite(PING_LED_PIN, HIGH);
         while (detect() < max_distance * 0.9) {
             delay(50);
         }
-        digitalWrite(pingLEDPin, LOW);
+        digitalWrite(PING_LED_PIN, LOW);
     }
 }
