@@ -8,13 +8,14 @@
  */
 
 // digital pins
-#define TRIGGER_PIN     2
-#define ECHO_PIN        3
-#define PING_LED_PIN    4
-#define DELAY_TIME      0.1
-// global variables
-long max_distance;
-int counter = 0;
+#define TRIGGER_PIN         2
+#define ECHO_PIN            3
+#define PING_LED_PIN        4
+#define PING_DELAY_TIME     10
+#define ADJUST_DELAY_TIME   150
+#define NUM_OF_ADJUSTMENTS  10
+
+long maxDistance;
 
 // setting up pins and communication via serial
 // starts the self adjustment method
@@ -26,84 +27,50 @@ void setup() {
     // establishing serial connection to main
     Serial.begin(9600);
     // self-adjustment
-    adjust();
+    maxDistance = adjust();
+    Serial.print((int) maxDistance);
 }
 
-// determine the distance at which the sensor gets triggered.
-int adjust() {
-    const int STARTUP_DELAY = 3000;
-    //indicator light on.
-    digitalWrite(PING_LED_PIN, HIGH);
-    // wait 3 seconds
-    delay(STARTUP_DELAY);
-    digitalWrite(PING_LED_PIN, LOW);
-    
-    max_distance = determineMaxDistance();
-}
-
-long determineMaxDistance() {
-    long sum = 0;
-    const int NUMBER_OF_MEASUREMENTS = 10;
-
-    for (int i = 0; i < NUMBER_OF_MEASUREMENTS; i++) {
-        digitalWrite(PING_LED_PIN, HIGH);
-        sum += detect();
-        delay(100);
-        digitalWrite(PING_LED_PIN, LOW);
-        delay(100);
-    }
-    // return average of 10 measurements and add margin of error of 10%
-    return (sum / NUMBER_OF_MEASUREMENTS) * 0.9;
-}
-
-long detect() {
-    onePing();
-    return pulseIn(ECHO_PIN, HIGH);
-}
-
-void onePing() {
-    // send a pulse
+long sendPing() {
     digitalWrite(TRIGGER_PIN, HIGH);
-    // wait for ping to be sent
-    delay(DELAY_TIME);
-    // one ping finished
+    delayMicroseconds(PING_DELAY_TIME);
     digitalWrite(TRIGGER_PIN, LOW);
 }
 
-boolean triggered() {
-    // send a ping and return whether something has been detected
-    onePing();
-    if (pulseIn(ECHO_PIN, HIGH) < max_distance) {
-        return true;
+long getDistance() {
+    sendPing();
+    long distance = pulseIn(ECHO_PIN, HIGH);
+    delayMicroseconds(PING_DELAY_TIME);
+    return distance;
+}
+
+boolean isTriggered() {
+    return getDistance() < maxDistance;
+}
+
+long adjust() {
+    digitalWrite(PING_LED_PIN, HIGH);
+    delay(1000);
+    long sum = 0;
+    for (int i = 0; i <= NUM_OF_ADJUSTMENTS; i++) {
+        digitalWrite(PING_LED_PIN, HIGH);
+        sum += getDistance();
+        Serial.write((int) sum);
+        Serial.write("\n");
+        delay(ADJUST_DELAY_TIME);
+        digitalWrite(PING_LED_PIN, LOW);
+        delay(ADJUST_DELAY_TIME);
     }
-    return false;
+    return (sum / NUM_OF_ADJUSTMENTS);
 }
 
 
-
-void loop() {
-    
-    if (triggered) {
-        Serial.print("Triggered!\n");
-        long initialDistance = detect();
-        long distance;
-        do {
-            distance = detect();
-        } while (distance > 0 || distance < max_distance);
-
-        if (initialDistance > distance) {
-            Serial.print("Person left.\n");
-        } else if (initialDistance < distance) {
-            Serial.print("Person entered.'\n");
-        } else {
-            Serial.print("Person went paralel.\n");
-        }
-        
-        
+void loop(){
+    if (isTriggered()) {
+        Serial.print((int) getDistance());
+        Serial.print("\n");
     }
-
 }
-
 
 
 
