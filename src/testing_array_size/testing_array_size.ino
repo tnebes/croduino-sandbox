@@ -64,6 +64,7 @@ void loop(){
         }
     }
 
+    // feigns the termination of a program
     die();
     
 }
