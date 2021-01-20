@@ -10,10 +10,10 @@
  */
 
 // digital pins
-#define triggerPin = 2;
-#define echoPin = 3;
-#define pingLEDPin = 4;
-#define delayTime = 0.1;
+#define TRIGGER_PIN     2
+#define ECHO_PIN        3
+#define PING_LED_PIN    4
+#define DELAY_TIME      0.1
 long max_distance;
 int counter = 0;
 
