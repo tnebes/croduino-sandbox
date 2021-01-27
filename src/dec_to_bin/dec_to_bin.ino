@@ -15,9 +15,10 @@
 #define PIN_5       8
 #define PIN_6       7
 #define PIN_7       6
-#define DELAY_TIME  1000
+#define DELAY_TIME  250
+#define MAX_NUMBER  10
 
-unsigned char pin[8];
+char pin[8];
 
 void setup() {
     Serial.begin(BAUD_RATE);
@@ -49,20 +50,20 @@ void displayBinary(char binary[]) {
     }
 }
 
-void getBinary(unsigned char number) {
+void getBinary(char number) {
     char binary[8];
-    memset(binary, 1, sizeof(char));
+    memset(binary, 0, sizeof(char));
     if (number > 9) {
         displayBinary(binary);
-        // Serial.print("error");
-        // Serial.println(number, DEC);
+        Serial.print("error");
+        Serial.println(number, DEC);
     } else {
         for (int i = 0; i < sizeof(binary) / sizeof(binary[0]); i++) {
             binary[i] = number & 1;
             number >>= 1;
         }
     }
-    for (unsigned char i = 0; i < sizeof(binary) / sizeof(binary[0]); i++) {
+    for (char i = 0; i < sizeof(binary) / sizeof(binary[0]); i++) {
         Serial.print(binary[i], DEC);
     }
     Serial.println();
@@ -71,16 +72,18 @@ void getBinary(unsigned char number) {
 
 void extractNumber(int inputNumber) {
     while (inputNumber != 0) {
-        getBinary((unsigned char) (inputNumber % 10));
+        getBinary((char) (inputNumber % 10));
         inputNumber /= 10;
     }
 }
 
 void loop() {
 
-    for (unsigned char i = 0; i < 9; i++) {
+    for(int i = 0; i < MAX_NUMBER; i++) {
         extractNumber(i);
-        Serial.println(i, DEC);
-        delay(DELAY_TIME);
     }
+    for (int i = 10; i > 0; i--) {
+        extractNumber(i);
+    }
+
 }
