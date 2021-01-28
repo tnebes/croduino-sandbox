@@ -1,6 +1,5 @@
 /*
  * Show what pointers are in the most contrived way possible
- * 
  */
 
 #define LED     13
@@ -20,4 +19,7 @@ void loop() {
     static int delayTime = 500;
     static int state = HIGH;
     BlinkLED(LED, &delayTime, &state);
+    if (delayTime < 0) {
+        delayTime = 500;
+    }
 }
