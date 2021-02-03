@@ -26,7 +26,9 @@ void setup() {
         Serial.print(*ptr++);
     }
     Serial.println();
-    // unrecommended way of printing char array
+    // not recommended way of printing a char array as the array can easily go out of bounds
+    // due to the slightest error.
+    ptr = buffer;    
     for (i = 0; i < length; i++) {
         Serial.print(*(ptr + i));
     }
